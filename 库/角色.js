@@ -32,7 +32,6 @@ var 角色大图鉴 = {
 	}
 }
 
-//角色对象可能会有无法估量个，所以需要使用prototype减少方法数量。
 class 角色 {
 	constructor(名字) {
 		var that = this;
@@ -125,11 +124,8 @@ class 角色 {
 			新图标.visible = true;
 		}
 	}
-	图标显示(开关) {
+	图标显示(开关 = true) {
 		let that = this;
-		if (typeof 开关 === 'undefined') {
-			开关 = true;
-		}
 		that.角色图标显示中 = 开关;
 		if (that.当前图标名 != null) {
 			that.图标字典表[that.当前图标名].visible = that.角色图标显示中;
@@ -140,50 +136,45 @@ class 角色 {
 		return that.图标字典表[that.当前图标名];
 	}
 }
-
 //所有的角色根据uid : 对象 这样的方式组成映射集。uid的类型是number
 var 角色映射集 = new Map();
 //剧情角色花名册是一张 剧情重要角色名 : uid 的对应表。
 //要注意这里的角色名并非该角色对象的实际名字，而是剧情中为了方便指代而用的另一个名字
 //比如游戏里可以生成多个上等兵，但是其中一个上等兵有剧情，我们可以给这个上等兵在剧情中起名为"剧情上等兵1"
 var 剧情角色花名册 = {};
-
-function 角色集控制器(){
-	var that = this;
-	that.创建 = function(角色名, 角色剧情名){
-		let 角色实例 = new 角色(角色名);
-		角色映射集.set(角色实例.uid, 角色实例);
-		if(arguments.length > 1){
-			剧情角色花名册[角色剧情名] = 角色实例.uid;
-		}
-		return 角色实例;
+角色.创建 = function(角色名, 角色剧情名){
+	let 角色实例 = new 角色(角色名);
+	角色映射集.set(角色实例.uid, 角色实例);
+	if(arguments.length > 1){
+		剧情角色花名册[角色剧情名] = 角色实例.uid;
 	}
-	that.创建并导入地图 = function(地图实例, 角色名, 角色剧情名){
-		var 角色实例;
-		if(arguments.length > 2) {
-			角色实例 = that.创建(角色名, 角色剧情名);
-		}
-		else {
-			角色实例 = that.创建(角色名);
-		}
-		地图实例.导入角色(角色实例);
-		return 角色实例;
+	return 角色实例;
+}
+角色.创建并导入地图 = function(地图实例, 角色名, 角色剧情名){
+	var 角色实例;
+	if(arguments.length > 2) {
+		角色实例 = 角色.创建(角色名, 角色剧情名);
 	}
-	that.获取实例 = function(角色标识) {
-		//角色标识有两可能，其一是number类型的uid，其二是string类型的角色剧情名，其三是我自己已经是角色实例了
-		//为什么要有其三，因为有很多根据输入角色标识不同来获取实例的函数，如果每次输入一个实例都要额外判定太耗时间了
-		//所以获取实例允许输入就是一个实例，输出我自己
-		if(typeof 角色标识 === 'number'){
-			return 角色映射集.get(角色标识);
-		}
-		else if(typeof 角色标识 === 'string'){
-			return 角色映射集.get(剧情角色花名册[角色标识]);
-		}
-		else {
-			return 角色标识;
-		}
+	else {
+		角色实例 = 角色.创建(角色名);
+	}
+	地图实例.导入角色(角色实例);
+	return 角色实例;
+}
+角色.获取实例 = function(角色标识) {
+	//角色标识有两可能，其一是number类型的uid，其二是string类型的角色剧情名，其三是我自己已经是角色实例了
+	//为什么要有其三，因为有很多根据输入角色标识不同来获取实例的函数，如果每次输入一个实例都要额外判定太耗时间了
+	//所以获取实例允许输入就是一个实例，输出我自己
+	if(typeof 角色标识 === 'number'){
+		return 角色映射集.get(角色标识);
+	}
+	else if(typeof 角色标识 === 'string'){
+		return 角色映射集.get(剧情角色花名册[角色标识]);
+	}
+	else {
+		return 角色标识;
 	}
 }
 
-cls.角色集控制器 = 角色集控制器;
+cls.角色 = 角色;
 }());

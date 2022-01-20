@@ -3,7 +3,6 @@ var lib = AdobeAn.getComposition("F9F78158E30CFB41AA33C247B6224B53").getLibrary(
 var 全局 = {
     地图 : null,
     下属性条 : null,
-    角色 : new cls.角色集控制器(),
     测试文本 : null,
     事件分发器 : new createjs.EventDispatcher()
 };
@@ -21,7 +20,7 @@ function 游戏入口点(){
     stage.addChild(全局.测试文本);
     全局.地图.地图鼠标于舞台激活(stage);
 
-    全局.角色.创建并导入地图(全局.地图, "哆啦A梦", "哆啦A梦");
+    cls.角色.创建并导入地图(全局.地图, "哆啦A梦", "哆啦A梦");
     全局.地图.登场单个角色("哆啦A梦", 4, 4);
     全局.事件分发器.addEventListener("角色登场触发器", function(){
         全局.下属性条.visible = false;
