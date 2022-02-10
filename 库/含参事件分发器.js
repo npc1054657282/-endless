@@ -12,37 +12,26 @@ class 含参事件 {
         that.分发计数器 = 0;
         //分发事件参数映射集以 分发id : 分发事件参数数组 来映射
         that.分发事件参数映射集 = new Map();
+        that.内部执行体 = 含参事件.内部执行体.bind(that);
         //监听启动
-        that.所属分发器.addEventListener(that.事件名 + that.计数分发器, that.内部执行体.bind(that));
+        that.所属分发器.addEventListener(that.事件名 + "_" + that.分发计数器, that.内部执行体);
     }
     执行体队列去重排序() {
         let that = this;
         //去重
         that.事件执行体及其判定对象队列 = [...new Set(that.事件执行体及其判定对象队列)];
         //排序
-        if (执行体优先度判定器) {
+        if (that.执行体优先度判定器) {
             that.事件执行体及其判定对象队列.sort(that.执行体优先度判定器);
         }
-    }
-    内部执行体(e) {
-        let that = this;
-        let eStr = e.type;
-        let 分发id = parseInt(eStr.substring(eStr.lastIndexOf("_") + 1));
-        //一旦确定了一次执行，这次执行期间对执行队列产生的变动就不会影响这次执行序列本身。
-        let 事件执行体及其判定对象队列 = [...that.事件执行体及其判定对象队列];
-        for (let 事件执行体及其判定对象 of 事件执行体及其判定对象队列) {
-            事件执行体及其判定对象.执行体.call(所属分发器, ...that.分发事件参数映射集.get(分发id));
-        }
-        that.所属分发器.removeEventListener(that.事件名 + 分发id, that.内部执行体);
-        that.分发事件参数映射集.delete(分发id);
     }
     事件触发(...args) {
         let that = this;
         let 分发id = that.分发计数器;
         that.分发事件参数映射集.set(分发id, [...args]);
-        that.所属分发器.dispatchEvent(that.事件名 + 分发id);
+        that.所属分发器.dispatchEvent(that.事件名 + "_" + 分发id);
         that.分发计数器 += 1;
-        that.所属分发器.addEventListener(that.事件名 + that.分发计数器, that.内部执行体);
+        that.所属分发器.addEventListener(that.事件名 + "_" + that.分发计数器, that.内部执行体);
     }
     添加监听 (执行体, 判定对象){
         let that = this;
@@ -62,6 +51,18 @@ class 含参事件 {
             }
         }
     }
+}
+含参事件.内部执行体 = function(e) {
+    let that = this;
+    let eStr = e.type;
+    let 分发id = parseInt(eStr.substring(eStr.lastIndexOf("_") + 1));
+    //一旦确定了一次执行，这次执行期间对执行队列产生的变动就不会影响这次执行序列本身。
+    let 事件执行体及其判定对象队列 = [...that.事件执行体及其判定对象队列];
+    for (let 事件执行体及其判定对象 of 事件执行体及其判定对象队列) {
+        事件执行体及其判定对象.执行体.call(that.所属分发器, ...that.分发事件参数映射集.get(分发id));
+    }
+    that.所属分发器.removeEventListener(that.事件名 + 分发id, that.内部执行体);
+    that.分发事件参数映射集.delete(分发id);
 }
 //将一个继承自EventDispatcher的类扩展为一个拥有含参事件分发能力的类
 //每个含参事件分发器类都该有一个含参事件图鉴，以为其对象在使用分发能力时生成一个含参事件分发字典表
