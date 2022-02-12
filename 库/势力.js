@@ -14,9 +14,18 @@
 class 势力 {
     constructor(权限码, 玩家性 = false) {
         let that = this;
+        that.uid = UID.分配(that);
         that.权限码 = 权限码;
         that.玩家性 = 玩家性;
     }
+}
+势力.获取实例 = function(势力标识) {
+    if (typeof 势力标识 === "number") {
+		return UID.获取实例(势力标识);
+	}
+	else {
+		return 势力标识;
+	}
 }
 cls.势力 = 势力;
 }());
