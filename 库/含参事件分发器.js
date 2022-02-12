@@ -61,7 +61,7 @@ class 含参事件 {
     for (let 事件执行体及其判定对象 of 事件执行体及其判定对象队列) {
         事件执行体及其判定对象.执行体.call(that.所属分发器, ...that.分发事件参数映射集.get(分发id));
     }
-    that.所属分发器.removeEventListener(that.事件名 + 分发id, that.内部执行体);
+    that.所属分发器.removeEventListener(that.事件名 + "_" + 分发id, that.内部执行体);
     that.分发事件参数映射集.delete(分发id);
 }
 //将一个继承自EventDispatcher的类扩展为一个拥有含参事件分发能力的类
