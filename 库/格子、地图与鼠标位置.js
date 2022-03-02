@@ -2,9 +2,9 @@
 (function(){
 
 //门禁大图鉴是一张静态表。门禁集合里保存的都是标识门禁名的字符串，而具体的门禁掩码则通过门禁大图鉴来获取。
+//权限掩码都是大整数BigInt类型，以容纳无限的权限量
 var 门禁大图鉴 = {
-	绝对禁止门禁 : 0,
-	绝对放行门禁 : 0xffffffffffffffff, 
+	绝对禁止门禁 : 0n,
 };
 
 class 直接通路 {
@@ -147,7 +147,7 @@ class 格子 {
 	}
 }
 格子.获取实例 = function(格子标识) {
-	if (typeof 格子标识 === "number") {
+	if (typeof 格子标识 === "bigint") {
 		return UID.获取实例(格子标识);
 	}
 	else {
@@ -320,6 +320,8 @@ function 地图UI容器(所属地图实例){
 	//顶层场景的最高位置
 	that.顶层场景存根 = new createjs.DisplayObject();
 	that.addChild(that.顶层场景存根);
+	that.地图滤镜实例 = new createjs.Shape();
+	that.addChild(that.地图滤镜实例);
 	that.图标光标UI实例 = new lib.元件图标光标();
 	that.图标光标UI实例.visible = false;
 	that.addChild(that.图标光标UI实例);
@@ -406,7 +408,7 @@ p.导入角色UI = function(角色标识){
 	let that = this;
 	//导入角色UI时，被导入的角色的地图图标字典表中的所有图标将被导入到本地图的角色图层中
 	//参数“角色”有三种允许的输入，
-	//其一：输入number类型的uid，
+	//其一：输入bigint类型的uid，
 	//其二：输入string类型的角色剧情名
 	//其三：输入object类型的角色实例，
 	//这三种输入都可以用获取实例来搞定
@@ -465,7 +467,7 @@ p.移动角色并播放动画 = function(角色标识, 移动目标格标识){
 	let 移动起点格 = 移动角色实例.当前所在格;
 	let 移动目标格 = cls.格子.获取实例(移动目标格标识);
 	//获取从起点到终点的通路列表
-	let 移动通路列表 = 移动起点格.搜索目标格子通路列表(移动角色实例.角色权限码, 移动目标格标识)
+	let 移动通路列表 = 移动起点格.搜索目标格子通路列表(移动角色实例.权限码, 移动目标格标识)
 	if(移动通路列表.length === 0){
 		return;
 	}
@@ -543,7 +545,7 @@ class 地图 {
 		//每当地图上有格子出现权限变更的时候，地图版本就会增加。在使用缓存前比较缓存版本和地图版本
 		//如果缓存版本较低，则缓存废除，重新计算
 		//地图版本不会被存档，重新加载存档后会从0开始计算。
-		that._地图版本 = 0;
+		that._地图版本 = 0n;
 	}
 	get UI容器() {
 		return 地图.地图uid与地图UI容器映射集.get(this.uid);
@@ -579,7 +581,7 @@ class 地图 {
 	return 地图实例.uid;
 }
 地图.获取实例 = function(地图标识) {
-	if(typeof 地图标识 === 'number'){
+	if(typeof 地图标识 === 'bigint'){
 		return UID.获取实例(地图标识);
 	}
 	else {
